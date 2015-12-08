@@ -1,12 +1,15 @@
+#!/usr/bin/env ruby
+
 PROJECT_ROOT = File.expand_path(File.dirname(__FILE__) + "/../")
 
 $LOAD_PATH.unshift(PROJECT_ROOT)
 
 require 'rspec'
+require 'its'
 require 'securerandom'
 require 'scripts/shared.rb'
 
-git_tag  = `git describe --abbrev=0 --tags 2>/dev/null`
+git_tag  = `git describe --abbrev=0 --tags 2>/dev/null`.chomp
 git_tag  = git_tag != "" ? git_tag : "v0.0.0"
 git_sha1 = `git rev-parse HEAD | head -c 8`
 

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+# Install s3d version script
+echo "Adding ${GIT_TAG} to /opt/apps/s3d/cuurent/version"
+sudo echo "${GIT_TAG}" > /opt/apps/s3d/current/version
+
+# Add to path for usage on command line
+echo "Symlinking s3d to /usr/local/bin"
+sudo ln -s /opt/apps/s3d/current/s3d /usr/local/bin

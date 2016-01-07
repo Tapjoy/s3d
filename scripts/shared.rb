@@ -4,12 +4,15 @@ class InvalidConfig < ArgumentError
 end
 
 class ConfigFile
-  def initialize(name)
+  def initialize(name, git_tag=nil, git_sha1=nil)
     file = File.read(name)
     @config = JSON.parse(file)
 
     @config["aws"] ||= {}
     @config["cdns"] ||= {}
+
+    @config["git_tag"] ||= git_tag unless git_tag.nil?
+    @config["git_sha1"] ||= git_sha1 unless git_sha1.nil?
 
     # require some values or die
     @config["upload"]["dir"] rescue raise InvalidConfig.new("Missing config['upload']['dir']")
@@ -37,11 +40,17 @@ class ConfigFile
 
   def bucket_path
     if path = @config["bucket"]["path"]
-      # Git Repo
-      git_tag  = `git describe --abbrev=0 --tags 2>/dev/null`
-      git_tag.gsub!("\n", "")
-      git_tag  = git_tag != "" ? git_tag : "v0.0.0"
-      git_sha1 = `git rev-parse HEAD | head -c 8`
+
+      if not git_tag = @config["git_tag"]
+        # Git Repo
+        git_tag  = `git describe --abbrev=0 --tags 2>/dev/null`
+        git_tag.gsub!("\n", "")
+        git_tag  = git_tag != "" ? git_tag : "v0.0.0"
+      end
+
+      if not git_sha1 = @config["git_sha1"]
+        git_sha1 = `git rev-parse HEAD | head -c 8`
+      end
 
       path_template = path.dup
 

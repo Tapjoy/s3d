@@ -23,6 +23,7 @@ function displayHelpText {
     s3d <config-file>
       -h, display this message
       -f, force upload without asking for confirmation
+      -e (git_tag|git_sha1)=VAL sets path variable to VAL
       -v, display version
 \n
 EOF
@@ -47,7 +48,10 @@ function confirm {
 
 path="$(readlink $DIR/s3d | xargs dirname )"
 
-while getopts "hvf" opt; do
+git_tag=""
+git_sha1=""
+
+while getopts "hvfe:" opt; do
   case "$opt" in 
     h)
       displayHelpText
@@ -60,6 +64,17 @@ while getopts "hvf" opt; do
     f)
       ignore_confirm=true
       ;;
+    e)
+      if [[ $OPTARG =~ ^git_tag=(.+)$ ]]; then
+        git_tag=${BASH_REMATCH[1]}
+        echo -e "\$git_tag = ${git_tag}"
+      elif [[ $OPTARG =~ ^git_sha1=(.+)$ ]]; then
+        git_sha1=${BASH_REMATCH[1]}
+        echo -e "\$git_sha1 = ${git_sha1}"
+      else
+        echo "Could not match -e param. Must be of form (git_tag|git_sha1)=VAL"
+      fi
+      ;;
   esac
 done
 
@@ -69,8 +84,8 @@ if [ ! $1 ] ; then
   exit 0
 fi
 
-$path/scripts/plan.rb $1
+$path/scripts/plan.rb $1 $git_tag $git_sha1
 if [ ! $ignore_confirm ] ; then
   confirm
 fi
-$path/scripts/execute.rb $1
+$path/scripts/execute.rb $1 $git_tag $git_sha1

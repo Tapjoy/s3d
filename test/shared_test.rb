@@ -48,16 +48,22 @@ EOM
     File.delete(@tmp_file)
   }
 
-  subject { ConfigFile.new(@tmp_file) }
+  context "using git" do
+    subject { ConfigFile.new(@tmp_file) }
 
-  its(:upload_dir) { should == "#{PROJECT_ROOT}/build"}
-  its(:aws_account) { should == "my-prod-user"}
-  its(:aws_keyfile) { should == ".aws.prodkeys"}
-  its(:bucket_name) { should == "name.of.my.bucket"}
-  its(:bucket_path) { should == "/project/#{git_tag}-#{git_sha1}"}
-  its(:cdns) do
-    should == {"cloudfront" => "https://b33fgotm11k.cloudfront.net", "akamai" => "https://e9474.b.akamaiedge.net" }
+    its(:upload_dir) { should == "#{PROJECT_ROOT}/build"}
+    its(:aws_account) { should == "my-prod-user"}
+    its(:aws_keyfile) { should == ".aws.prodkeys"}
+    its(:bucket_name) { should == "name.of.my.bucket"}
+    its(:bucket_path) { should == "/project/#{git_tag}-#{git_sha1}"}
+    its(:cdns) do
+      should == {"cloudfront" => "https://b33fgotm11k.cloudfront.net", "akamai" => "https://e9474.b.akamaiedge.net" }
+    end
   end
 
+  context "supplying git_tag and git_sha1" do
+    subject { ConfigFile.new(@tmp_file, '7', '12345') }
+    its(:bucket_path) { should == "/project/7-12345"}
+  end
 end
 

@@ -56,6 +56,7 @@ EOM
     its(:aws_keyfile) { should == ".aws.prodkeys"}
     its(:bucket_name) { should == "name.of.my.bucket"}
     its(:bucket_path) { should == "/project/#{git_tag}-#{git_sha1}"}
+    its(:command) { should == "sync"}
     its(:cdns) do
       should == {"cloudfront" => "https://b33fgotm11k.cloudfront.net", "akamai" => "https://e9474.b.akamaiedge.net" }
     end

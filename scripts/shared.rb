@@ -8,17 +8,31 @@ class ConfigFile
     file = File.read(name)
     @config = JSON.parse(file)
 
+    # set defaults
     @config["aws"] ||= {}
     @config["cdns"] ||= {}
 
     @config["use_git"] = true if @config["use_git"].nil?
 
+    if @config["upload"]["dir"]
+      @config["resource"] = @config["upload"]["dir"]
+      @config["command"] = 'sync'
+    elsif @config["upload"]["file"]
+      @config["resource"] = @config["upload"]["file"]
+      @config["command"] = 'cp'
+    else
+      raise InvalidConfig.new("Must supply either config['upload']['dir'] or config['upload']['file']")
+    end
+
     @config["git_tag"] ||= git_tag unless git_tag.nil?
     @config["git_sha1"] ||= git_sha1 unless git_sha1.nil?
 
     # require some values or die
-    @config["upload"]["dir"] rescue raise InvalidConfig.new("Missing config['upload']['dir']")
     @config["bucket"]["name"] rescue raise InvalidConfig.new("Missing config['bucket']['name']")
+  end
+
+  def command
+    @config["command"]
   end
 
   def use_git
@@ -26,8 +40,8 @@ class ConfigFile
   end
 
   def upload_dir
-    if dir = @config["upload"]["dir"]
-      return "#{project_path}/#{dir}"
+    if resource = @config["resource"]
+      return "#{project_path}/#{resource}"
     end
   end
 

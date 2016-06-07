@@ -77,10 +77,11 @@ class ConfigFile
       author = @config["author"]
       if (author.nil? || author == '')
         author = `whoami`
+        author.gsub!("\n", "")
       end
 
       path_template = path.dup
-      
+
       if git_tag and git_sha1
         path_template.gsub!("$git_tag", git_tag)
         path_template.gsub!("$git_sha1", git_sha1)

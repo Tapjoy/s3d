@@ -3,7 +3,7 @@
 dir = File.expand_path(File.dirname(__FILE__))
 require "#{dir}/shared.rb"
 
-cf = ConfigFile.new(ARGV[0], ARGV[1], ARGV[2])
+cf = ConfigFile.new(ARGV[0], ARGV[1], ARGV[2], ARGV[3])
 
 # Colors
 GREEN="\033[0;32m"

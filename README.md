@@ -41,6 +41,8 @@ s3d .s3.production
 s3d .s3.staging
 s3d .s3.local
 ```
+# pass in custom author name
+s3d -e author=sam.smith .s3.staging
 
 Install
 -----------
@@ -75,7 +77,7 @@ Config
 
   "bucket": {
     "name": "name.of.my.bucket",
-    "path": "/project/$git_tag-$git_sha1",
+    "path": "/project/$git_tag-$git_sha1/$author",
     "options" "--cache-control max-age=2592000,public"
   },
 

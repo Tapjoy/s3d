@@ -12,6 +12,7 @@ require 'scripts/shared.rb'
 git_tag  = `git describe --abbrev=0 --tags 2>/dev/null`.chomp
 git_tag  = git_tag != "" ? git_tag : "v0.0.0"
 git_sha1 = `git rev-parse HEAD | head -c 8`
+author = `whoami`.gsub!("\n", "")
 
 RSpec.describe ConfigFile do
 
@@ -31,7 +32,7 @@ RSpec.describe ConfigFile do
 
       "bucket": {
         "name": "name.of.my.bucket",
-        "path": "/project/$git_tag-$git_sha1"
+        "path": "/project/$author/$git_tag-$git_sha1"
       },
 
       "cdns": {
@@ -55,16 +56,16 @@ EOM
     its(:aws_account) { should == "my-prod-user"}
     its(:aws_keyfile) { should == ".aws.prodkeys"}
     its(:bucket_name) { should == "name.of.my.bucket"}
-    its(:bucket_path) { should == "/project/#{git_tag}-#{git_sha1}"}
+    its(:bucket_path) { should == "/project/#{author}/#{git_tag}-#{git_sha1}"}
     its(:command) { should == "sync"}
     its(:cdns) do
       should == {"cloudfront" => "https://b33fgotm11k.cloudfront.net", "akamai" => "https://e9474.b.akamaiedge.net" }
     end
   end
 
-  context "supplying git_tag and git_sha1" do
+  context "supplying git_tag, git_sha1 and author" do
     subject { ConfigFile.new(@tmp_file, '7', '12345') }
-    its(:bucket_path) { should == "/project/7-12345"}
+    its(:bucket_path) { should == "/project/#{author}/7-12345"}
   end
 end
 

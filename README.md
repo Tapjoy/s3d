@@ -41,13 +41,19 @@ s3d .s3.production
 s3d .s3.staging
 s3d .s3.local
 ```
+# passing in custom author name to create meaningful sub directories in your uploaded files
+# if no author is set `$author` will be result of `$whoami`
+s3d -e author=sam.smith .s3.staging
 
 Install
 -----------
-
+# This will make a copy of this repo in your home directory and symlink it
 ```
 make install
 ```
+
+# To symlink this repo directly 
+ln -s `pwd`/s3d /usr/local/bin
 
 Uninstall
 -------
@@ -75,7 +81,7 @@ Config
 
   "bucket": {
     "name": "name.of.my.bucket",
-    "path": "/project/$git_tag-$git_sha1",
+    "path": "/project/$git_tag-$git_sha1/$author",
     "options" "--cache-control max-age=2592000,public"
   },
 

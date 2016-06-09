@@ -4,7 +4,7 @@ class InvalidConfig < ArgumentError
 end
 
 class ConfigFile
-  def initialize(name, git_tag=nil, git_sha1=nil)
+  def initialize(name, git_tag=nil, git_sha1=nil, author=nil)
     file = File.read(name)
     @config = JSON.parse(file)
 
@@ -26,7 +26,8 @@ class ConfigFile
 
     @config["git_tag"] ||= git_tag unless git_tag.nil?
     @config["git_sha1"] ||= git_sha1 unless git_sha1.nil?
-
+    @config["author"] ||= author unless author.nil?
+    
     # require some values or die
     @config["bucket"]["name"] rescue raise InvalidConfig.new("Missing config['bucket']['name']")
   end
@@ -60,21 +61,34 @@ class ConfigFile
   def bucket_path
     if path = @config["bucket"]["path"]
 
-      if not git_tag = @config["git_tag"] and use_git
+      git_tag = @config["git_tag"]
+      if (git_tag.nil? || git_tag == '') and use_git
         # Git Repo
         git_tag  = `git describe --abbrev=0 --tags 2>/dev/null`
         git_tag.gsub!("\n", "")
         git_tag  = git_tag != "" ? git_tag : "v0.0.0"
       end
 
-      if not git_sha1 = @config["git_sha1"] and use_git
+      git_sha1 = @config["git_sha1"]
+      if (git_sha1.nil? || git_sha1 == '') and use_git
         git_sha1 = `git rev-parse HEAD | head -c 8`
       end
 
+      author = @config["author"]
+      if (author.nil? || author == '')
+        author = `whoami`
+        author.gsub!("\n", "")
+      end
+
+      path_template = path.dup
+
       if git_tag and git_sha1
-        path_template = path.dup
         path_template.gsub!("$git_tag", git_tag)
         path_template.gsub!("$git_sha1", git_sha1)
+      end
+
+      if author
+        path_template.gsub!("$author", author)
       end
 
       return path_template
